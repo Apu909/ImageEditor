@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Editor</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="shortcut icon" href="models\image_editor.png" />
+  </head>
+  <body>
+    <div class="container">
+
+      <!-- div pentru meniul optiunilor de editare a imaginii -->
+      <div id="menu" class="menu">
+
+        <!-- buton pentru optiune de selectie  -->
+        <button id="selectButton" class="menuButton active" value="Off">
+          <img src="models\select.png" />Select
+        </button>
+
+        <!-- buton pentru crop interactiv -->
+        <button id="cropButton" class="menuButton">
+          <img src="models\crop.png" />Crop
+        </button>
+
+        
+        <button id="undoButton" class="menuButton">Inapoi</button>
+
+
+        <button id="cropImageButton" class="menuButton">Crop Image</button>
+        <button id="effectButton" class="menuButton">Effect</button>
+        <button id="resizeImageButton" class="menuButton">Resize</button>
+        <button id="textButton" class="menuButton">Text</button>
+        <button id="cutImageButton" class="menuButton">Cut</button>
+
+        <!-- buton pentru salvarea imaginii curente -->
+        <button id="saveButton" class="menuButton">
+          <img src="save-regular-36.png" />Salveaza
+        </button>
+      </div>
+      <!-- sfarsit div pentru meniul optiunilor de editare a imaginii -->
+
+      <div class="imageEditor">
+        <div class="chooseImage">
+          <div class="uploadImage">
+            <input type="file" id="image_loader_input" />
+          </div>
+        </div>
+
+      <div id="div_canvas" class="div_canvas"></div>
+      <canvas id="image_canvas" class="image_canvas"></canvas>
+      </div>
+      <div class="imageHolder">
+        <button id="removeImageButton">Remove</button>
+        <img src="" id="image">
+      </div>
+
+
+
+        <div
+          id="selector"
+          style="border: 1px solid red; display: none; pointer-events: none"
+          hidden
+        ></div>
+        <div
+          id="imageCropper"
+          style="
+            border: 1px solid greenyellow;
+            display: none;
+            pointer-events: none;
+            resize: both;
+            overflow: auto;
+          "
+          hidden
+        ></div>
+        
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
