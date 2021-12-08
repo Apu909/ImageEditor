@@ -2,8 +2,8 @@
 
 body {
   background-color: #13252f;
-  min-height: 100vh;
-  width: 100%;
+  min-height: 95vh;
+  /* width: 100%; */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -30,7 +30,7 @@ body {
 
 .menu button {
   width: 100%;
-  height: 80px;
+  height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -39,7 +39,7 @@ body {
   color: white;
   font-family: "poppins";
   padding: 10px;
-  margin: 8px 0px 0px 0px;
+  margin: 8px 0px 10px 0px;
   flex-direction: column;
   /* cursor: pointer; */
 }
@@ -49,7 +49,7 @@ body {
 }
 
 .imageEditor {
-  width: 80%;
+  width: 1000px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -74,7 +74,32 @@ body {
 } */
 
 .image_canvas {
-  width: 700px;
-  height: 700px;
+  /* width: 700px; */
+  /* height: 700px; */
   display: none;
+}
+
+.effect_panel {
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  box-shadow: 0.1px 4px 8px 5px rgba(0, 0, 0, 0.1);
+  display: none;
+  margin-top: 40%;
+  /* display: flex; */
+}
+
+.effect_panel button {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #2b343b;
+  border: none;
+  color: white;
+  font-family: "poppins";
+  padding: 10px;
+  margin: 0px 0px 0px 0px;
+  flex-direction: column;
 }

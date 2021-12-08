@@ -12,6 +12,8 @@ const undoButton = document.getElementById("undoButton");
 const remove_image_button = document.getElementById("removeImageButton");
 const cropImageButton = document.getElementById("cropImageButton");
 const cropButton = document.getElementById("cropButton");
+const effect_button = document.getElementById("effectButton");
+const cut_button = document.getElementById("cutImageButton");
 
 //functie de incarcare a imaginii in canvas
 function loadImage(e) {
@@ -19,9 +21,35 @@ function loadImage(e) {
   reader.onload = function (ev) {
     const image = new Image();
     image.onload = function () {
-      canvas_image.width = image.width;
-      canvas_image.height = image.height;
-      ctx.drawImage(image, 0, 0);
+      canvas_image.height = canvas_image.width * (image.height / image.width);
+
+      // step 1 - resize to 50%
+      var oc = document.createElement("canvas"),
+        octx = oc.getContext("2d");
+
+      oc.width = image.width * 0.5;
+      oc.height = image.height * 0.5;
+      octx.drawImage(image, 0, 0, oc.width, oc.height);
+
+      // step 2
+      octx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5);
+
+      // step 3, resize to final size
+      ctx.drawImage(
+        oc,
+        0,
+        0,
+        oc.width * 0.5,
+        oc.height * 0.5,
+        0,
+        0,
+        canvas_image.width,
+        canvas_image.height
+      );
+
+      // canvas_image.width = image.width;
+      // canvas_image.height = image.height;
+      // ctx.drawImage(image, 0, 0);
 
       canvas_image.style.display = "flex";
       image_loader_input.style.display = "none";
@@ -35,6 +63,7 @@ function loadImage(e) {
 image_loader_input.addEventListener("change", loadImage, false);
 
 remove_image_button.addEventListener("click", () => {
+  selector.style.display = "none";
   canvas_image.style.display = "none";
   image_loader_input.style.display = "flex";
 });
@@ -63,13 +92,16 @@ var rect = {
 };
 
 var rectDiv = document.getElementById("selector");
+var x;
+var y;
 select_button.addEventListener("click", () => {
+  selector.style.display = "block";
   rectDiv.style.display = "block";
   rectDiv.style.position = "absolute";
   rectDiv.style.left = canvas_image.offsetLeft + "px";
   rectDiv.style.top = canvas_image.offsetTop + "px";
-  rectDiv.style.width = 700 + "px";
-  rectDiv.style.height = 700 + "px";
+  rectDiv.style.width = canvas_image.width + "px";
+  rectDiv.style.height = canvas_image.height + "px";
 
   //selectare portiune imagine
   canvas_image.addEventListener("mousedown", mousedown);
@@ -82,6 +114,10 @@ select_button.addEventListener("click", () => {
     grab = true;
     rect.x0 = e.clientX;
     rect.y0 = e.clientY;
+    const rect2 = canvas_image.getBoundingClientRect();
+    x = e.layerX;
+    // alert(x);
+    y = e.layerY;
   }
 
   function mousemove(e) {
@@ -109,10 +145,13 @@ select_button.addEventListener("click", () => {
 
 //functia de crop interactiv
 cropButton.addEventListener("click", () => {
+  const image = new Image();
+  image.src = canvas_image.toDataURL();
   ctx.drawImage(
     canvas_image,
-    rect.x0 - 600,
-    rect.y0 - 100,
+    //TO DO: see how you can solve this shit
+    x,
+    y,
     rectDiv.offsetWidth,
     rectDiv.offsetHeight,
     0,
@@ -121,6 +160,12 @@ cropButton.addEventListener("click", () => {
     canvas_image.height
   );
 });
+
+//sterge selectia
+// const cut_button = document.getElementById("cutImageButton");
+// cut_button.addEventListener("click", () => {
+
+// })
 
 const menuButtons = Array.from(document.querySelectorAll(".menuButton"));
 
@@ -136,3 +181,104 @@ menuButtons.forEach((buttons) => {
 //salvare imagine
 
 //crop image
+
+//stergere pixeli
+cut_button.addEventListener("click", () => {
+  const imageData = ctx.getImageData(
+    x,
+    y,
+    rectDiv.offsetWidth,
+    rectDiv.offsetHeight
+  );
+  const data = imageData.data;
+  for (var i = 0; i < data.length; i++) {
+    data[i] = 255; // red
+  }
+  ctx.putImageData(
+    imageData,
+    x,
+    y,
+    0,
+    0,
+    rectDiv.offsetWidth,
+    rectDiv.offsetHeight
+  );
+});
+
+//effects
+
+const effect_panel = document.getElementById("effect_panel");
+var i = 0;
+effect_button.addEventListener("click", () => {
+  if (i % 2 === 0) {
+    effect_panel.style.display = "flex";
+    const image = new Image();
+    image.src = canvas_image.toDataURL();
+
+    const sepia_button = document.getElementById("sepia_button");
+    const grayscale_button = document.getElementById("grayscale_button");
+    const inverted_button = document.getElementById("inverted_button");
+    const original_button = document.getElementById("original_button");
+
+    var offsets = rectDiv.getBoundingClientRect();
+
+    grayscale_button.addEventListener("click", () => {
+      const imageData = ctx.getImageData(
+        x,
+        y,
+        rectDiv.offsetWidth,
+        rectDiv.offsetHeight
+      );
+      // alert(x + "," + y);
+      const data = imageData.data;
+      for (var i = 0; i < data.length; i += 4) {
+        var avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        data[i] = avg; // red
+        data[i + 1] = avg; // green
+        data[i + 2] = avg; // blue
+      }
+      ctx.putImageData(
+        imageData,
+        x,
+        y,
+        0,
+        0,
+        rectDiv.offsetWidth,
+        rectDiv.offsetHeight
+      );
+    });
+
+    original_button.addEventListener("click", () => {
+      ctx.drawImage(image, 0, 0);
+    });
+
+    inverted_button.addEventListener("click", () => {
+      const imageData = ctx.getImageData(
+        x,
+        y,
+        rectDiv.offsetWidth,
+        rectDiv.offsetHeight
+      );
+      const data = imageData.data;
+      for (var i = 0; i < data.length; i += 4) {
+        data[i] = 255 - data[i]; // red
+        data[i + 1] = 255 - data[i + 1]; // green
+        data[i + 2] = 255 - data[i + 2]; // blue
+      }
+      ctx.putImageData(
+        imageData,
+        x,
+        y,
+        0,
+        0,
+        rectDiv.offsetWidth,
+        rectDiv.offsetHeight
+      );
+    });
+
+    i++;
+  } else {
+    effect_panel.style.display = "none";
+    i++;
+  }
+});
