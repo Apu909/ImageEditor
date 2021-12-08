@@ -282,3 +282,27 @@ effect_button.addEventListener("click", () => {
     i++;
   }
 });
+
+//text
+const textButton = document.getElementById("textButton");
+const text_input = document.getElementById("text_input");
+const text_input_div = document.getElementById("text_input_div");
+const x_coordinate_text = document.getElementById("x_coordinate_text");
+const y_coordinate_text = document.getElementById("y_coordinate_text");
+const submit_text_button = document.getElementById("submit_text_button");
+let j = 0;
+textButton.addEventListener("click", () => {
+  if (j % 2 === 0) {
+    text_input_div.style.display = "block";
+    j++;
+  } else {
+    text_input_div.style.display = "none";
+    j++;
+  }
+
+  // alert(text);
+});
+const text = text_input.value;
+submit_text_button.addEventListener("click", () => {
+  ctx.fillText(text, x, y);
+});

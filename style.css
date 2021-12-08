@@ -14,7 +14,6 @@ body {
   display: flex;
   height: 800px;
   width: 1200px;
-
   border-radius: 15px;
   background: #252f35;
   overflow: hidden;
@@ -102,4 +101,17 @@ body {
   padding: 10px;
   margin: 0px 0px 0px 0px;
   flex-direction: column;
+}
+
+.text_input_div {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  display: none;
+  margin-top: 30%;
+}
+
+.text_input_div input {
+  display: block;
 }
