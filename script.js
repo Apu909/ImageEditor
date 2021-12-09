@@ -287,9 +287,10 @@ effect_button.addEventListener("click", () => {
 const textButton = document.getElementById("textButton");
 const text_input = document.getElementById("text_input");
 const text_input_div = document.getElementById("text_input_div");
-const x_coordinate_text = document.getElementById("x_coordinate_text");
+const font_size = document.getElementById("x_coordinate_text");
 const y_coordinate_text = document.getElementById("y_coordinate_text");
 const submit_text_button = document.getElementById("submit_text_button");
+const color_input_text = document.getElementById("color_input_text");
 let j = 0;
 textButton.addEventListener("click", () => {
   if (j % 2 === 0) {
@@ -302,7 +303,10 @@ textButton.addEventListener("click", () => {
 
   // alert(text);
 });
-const text = text_input.value;
+
 submit_text_button.addEventListener("click", () => {
+  const text = text_input.value;
+  ctx.fillStyle = color_input_text.value;
+  ctx.font = font_size.value + "px Arial";
   ctx.fillText(text, x, y);
 });
