@@ -9,98 +9,91 @@
     <link rel="shortcut icon" href="media\image_editor.png" />
   </head>
   <body>
+    <!-- div ce contine meniurile secundare de adaugare text si efecte -->
+    <div id="secondMenu" class="secondMenu">
+      <div id="textInputDiv" class="textInputDiv">
+        <input
+          type="text"
+          id="textInput"
+          class="textInput"
+          placeholder="Text"
+        />
+        <input type="number" id="fontSize" placeholder="Font size" />
+        <input type="color" id="colorTextInput" />
+        <button id="addTextButton">Add text</button>
+      </div>
+
+      <div id="effectPanel" class="effectPanel">
+        <button id="grayscaleButton" class="effectButton">Grayscale</button>
+        <button id="invertedButton" class="effectButton">Inverted</button>
+        <button id="originalButton" class="effectButton">Original</button>
+      </div>
+    </div>
+
+    <!-- div ce contine toate elementele editorului -->
     <div class="container">
-
-      <!-- div pentru meniul optiunilor de editare a imaginii -->
+      <!-- div pentru meniul principal al optiunilor de editare a imaginii -->
       <div id="menu" class="menu">
-
-        <!-- buton pentru optiune de selectie  -->
-        <button id="selectButton" class="menuButton active" value="Off">
+        <button id="selectButton" class="menuButton" value="Off">
           <img src="media\select.png" />Select
         </button>
 
-        <!-- buton pentru crop interactiv -->
         <button id="cropButton" class="menuButton">
           <img src="media\crop.png" />Crop
         </button>
 
-        
-        <!-- <button id="undoButton" class="menuButton">Inapoi</button> -->
-
-
-
         <button id="resizeImageButton" class="menuButton">
-          <img src="media\resize.png"/>Resize</button>
+          <img src="media\resize.png" />Resize
+        </button>
 
         <button id="textButton" class="menuButton">
-          <img src="media\text.png"/>Text</button>
+          <img src="media\text.png" />Text
+        </button>
 
         <button id="effectButton" class="menuButton">
-          <img src="media\effect.png"/>Effect</button>
+          <img src="media\effect.png" />Effects
+        </button>
 
-        <button id="cutImageButton" class="menuButton">
-          <img src="media\cut.png"/> Cut</button>
+        <button id="cutButton" class="menuButton">
+          <img src="media\cut.png" /> Cut
+        </button>
 
-        <!-- buton pentru salvarea imaginii curente -->
         <button id="saveButton" class="menuButton">
           <img src="media\save.png" />Salveaza
         </button>
       </div>
       <!-- sfarsit div pentru meniul optiunilor de editare a imaginii -->
-    <div id="text_input_div" class="text_input_div">
-      <input type="text" id="text_input" class="text_input">
-      <input type="number" id="x_coordinate_text">
-      <input type="number" id="y_coordinate_text">
-      <input type="color" id="color_input_text">
-      <button id="submit_text_button"> Submit</button>
-    </div>
-
-              <div id="effect_panel" class="effect_panel">
-          <button id="sepia_button" class="effect_button">Sepia</button>
-          <button id="grayscale_button" class="effect_button">Grayscale</button>
-          <button id="inverted_button" class="effect_button">Inverted</button>
-          <button id="original_button" class="effect_button">Original</button>
-        </div>
 
       <div class="imageEditor">
         <div class="chooseImage">
           <div class="uploadImage">
-            <input type="file" id="image_loader_input" />
+            <input type="file" id="imageLoaderInput" />
           </div>
         </div>
-
-
-
-      <div id="div_canvas" class="div_canvas"></div>
-      <canvas id="image_canvas" class="image_canvas"></canvas>
+        <canvas id="imageCanvas" class="imageCanvas"></canvas>
       </div>
-      <div class="imageHolder">
+
+      <div class="removeImage">
         <button id="removeImageButton">Remove</button>
-        <img src="" id="image">
       </div>
 
-
-
-        <div
-          id="selector"
-          style="border: 1px solid red; display: none; pointer-events: none"
-          hidden
-        ></div>
-        <div
-          id="imageCropper"
-          style="
-            border: 1px solid greenyellow;
-            display: none;
-            pointer-events: none;
-            resize: both;
-            overflow: auto;
-          "
-          hidden
-        ></div>
-        
-      </div>
+      <div
+        id="selector"
+        style="border: 1px solid red; display: none; pointer-events: none"
+        hidden
+      ></div>
+      <div
+        id="imageCropper"
+        style="
+          border: 1px solid greenyellow;
+          display: none;
+          pointer-events: none;
+          resize: both;
+          overflow: auto;
+        "
+        hidden
+      ></div>
     </div>
-
 
     <script src="script.js"></script>
   </body>

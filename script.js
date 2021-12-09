@@ -1,19 +1,35 @@
 //input-ul cu care preluam imaginea
-const image_loader_input = document.getElementById("image_loader_input");
+const imageLoaderInput = document.getElementById("imageLoaderInput");
 
 //canvas-ul unde este afisata imaginea
-const canvas_image = document.getElementById("image_canvas");
-const ctx = canvas_image.getContext("2d");
+const canvasImage = document.getElementById("imageCanvas");
+const ctx = canvasImage.getContext("2d");
 
-//butoanele din meniu
-const save_button = document.getElementById("saveButton");
-const select_button = document.getElementById("selectButton");
-const undoButton = document.getElementById("undoButton");
-const remove_image_button = document.getElementById("removeImageButton");
-const cropImageButton = document.getElementById("cropImageButton");
+//butoanele din meniul principal
+const selectButton = document.getElementById("selectButton");
 const cropButton = document.getElementById("cropButton");
-const effect_button = document.getElementById("effectButton");
-const cut_button = document.getElementById("cutImageButton");
+const textButton = document.getElementById("textButton");
+const effectButton = document.getElementById("effectButton");
+const cutButton = document.getElementById("cutButton");
+const saveButton = document.getElementById("saveButton");
+const removeImageButton = document.getElementById("removeImageButton");
+
+// variabile pentru meniul secundar
+const textInput = document.getElementById("textInput");
+const textInputDiv = document.getElementById("textInputDiv");
+const fontSize = document.getElementById("fontSize");
+const addTextButton = document.getElementById("addTextButton");
+const colorTextInput = document.getElementById("colorTextInput");
+const effectPanel = document.getElementById("effectPanel");
+
+// dreptunghiul pentru selectie
+let selectionRectangle = document.getElementById("selector");
+
+// variabile utile
+const widthMax = 800;
+const heightMax = 600;
+let clickX;
+let clickY;
 
 //functie de incarcare a imaginii in canvas
 function loadImage(e) {
@@ -21,38 +37,26 @@ function loadImage(e) {
   reader.onload = function (ev) {
     const image = new Image();
     image.onload = function () {
-      canvas_image.height = canvas_image.width * (image.height / image.width);
+      let widthImage = image.width;
+      let heightImage = image.height;
 
-      // step 1 - resize to 50%
-      var oc = document.createElement("canvas"),
-        octx = oc.getContext("2d");
+      if (widthImage > heightImage) {
+        if (widthImage > widthMax) {
+          heightImage *= widthMax / widthImage;
+          widthImage = widthMax;
+        }
+      } else {
+        if (heightImage > heightMax) {
+          widthImage *= heightMax / heightImage;
+          heightImage = heightMax;
+        }
+      }
+      canvasImage.width = widthImage;
+      canvasImage.height = heightImage;
+      ctx.drawImage(image, 0, 0, widthImage, heightImage);
 
-      oc.width = image.width * 0.5;
-      oc.height = image.height * 0.5;
-      octx.drawImage(image, 0, 0, oc.width, oc.height);
-
-      // step 2
-      octx.drawImage(oc, 0, 0, oc.width * 0.5, oc.height * 0.5);
-
-      // step 3, resize to final size
-      ctx.drawImage(
-        oc,
-        0,
-        0,
-        oc.width * 0.5,
-        oc.height * 0.5,
-        0,
-        0,
-        canvas_image.width,
-        canvas_image.height
-      );
-
-      // canvas_image.width = image.width;
-      // canvas_image.height = image.height;
-      // ctx.drawImage(image, 0, 0);
-
-      canvas_image.style.display = "flex";
-      image_loader_input.style.display = "none";
+      canvasImage.style.display = "flex";
+      imageLoaderInput.style.display = "none";
     };
     image.src = ev.target.result;
   };
@@ -60,253 +64,283 @@ function loadImage(e) {
   e.target.value = "";
 }
 
-image_loader_input.addEventListener("change", loadImage, false);
+imageLoaderInput.addEventListener("change", loadImage, false);
 
-remove_image_button.addEventListener("click", () => {
+removeImageButton.addEventListener("click", () => {
   selector.style.display = "none";
-  canvas_image.style.display = "none";
-  image_loader_input.style.display = "flex";
+  canvasImage.style.display = "none";
+  imageLoaderInput.style.display = "flex";
 });
 
 //functie ce salveaza imaginea curenta din canvas
-save_button.addEventListener("click", () => {
-  var image = canvas_image.toDataURL("image/png", 1.0);
-  downloadImage(image, "my-canvas.jpeg");
-});
+function save() {
+  let image = canvasImage.toDataURL("image/png", 1.0);
+  downloadImage(image, "image.jpeg");
+}
 
-function downloadImage(data, filename = "untitled.jpeg") {
-  var a = document.createElement("a");
+function downloadImage(data, name = "image.jpeg") {
+  let a = document.createElement("a");
   a.href = data;
-  a.download = filename;
+  a.download = name;
   document.body.appendChild(a);
   a.click();
 }
 
 //==================================================
+const menuButtons = Array.from(document.querySelectorAll(".menuButton"));
 
-var rect = {
-  x0: 0,
-  y0: 0,
-  x1: 0,
-  y1: 0,
-};
+menuButtons.forEach((buttons) => {
+  buttons.addEventListener("click", () => {
+    switch (buttons.id) {
+      case "selectButton":
+        selection();
+        break;
+      case "cropButton":
+        crop();
+        break;
+      case "cutButton":
+        cut();
+        break;
+      case "effectButton":
+        effect();
+        break;
+      case "textButton":
+        showHideTextMenu();
+        break;
+      case "saveButton":
+        save();
+        break;
+    }
+  });
+});
 
-var rectDiv = document.getElementById("selector");
-var x;
-var y;
-select_button.addEventListener("click", () => {
+// functia de selectie
+
+function selection() {
   selector.style.display = "block";
-  rectDiv.style.display = "block";
-  rectDiv.style.position = "absolute";
-  rectDiv.style.left = canvas_image.offsetLeft + "px";
-  rectDiv.style.top = canvas_image.offsetTop + "px";
-  rectDiv.style.width = canvas_image.width + "px";
-  rectDiv.style.height = canvas_image.height + "px";
+  selectionRectangle.style.display = "block";
+  selectionRectangle.style.position = "absolute";
+  selectionRectangle.style.left = canvasImage.offsetLeft + "px";
+  selectionRectangle.style.top = canvasImage.offsetTop + "px";
+  selectionRectangle.style.width = canvasImage.width + "px";
+  selectionRectangle.style.height = canvasImage.height + "px";
 
   //selectare portiune imagine
-  canvas_image.addEventListener("mousedown", mousedown);
-  canvas_image.addEventListener("mouseup", mouseup);
-  canvas_image.addEventListener("mousemove", mousemove);
+  canvasImage.addEventListener("mousedown", mousedown);
+  canvasImage.addEventListener("mouseup", mouseup);
+  canvasImage.addEventListener("mousemove", mousemove);
 
-  var grab = false;
+  let hold = false;
+  let rectangle = {
+    x0: 0,
+    y0: 0,
+    x1: 0,
+    y1: 0,
+  };
 
   function mousedown(e) {
-    grab = true;
-    rect.x0 = e.clientX;
-    rect.y0 = e.clientY;
-    const rect2 = canvas_image.getBoundingClientRect();
-    x = e.layerX;
-    // alert(x);
-    y = e.layerY;
+    hold = true;
+    rectangle.x0 = e.clientX;
+    rectangle.y0 = e.clientY;
+    clickX = e.layerX;
+    clickY = e.layerY;
   }
 
   function mousemove(e) {
-    if (grab) {
-      rect.x1 = e.clientX;
-      rect.y1 = e.clientY;
+    if (hold) {
+      rectangle.x1 = e.clientX;
+      rectangle.y1 = e.clientY;
       showRect();
     }
   }
 
   function mouseup(e) {
-    grab = false;
+    hold = false;
   }
 
   function showRect() {
-    var rectDiv = document.getElementById("selector");
-    rectDiv.style.display = "block";
-    rectDiv.style.position = "absolute";
-    rectDiv.style.left = rect.x0 + "px";
-    rectDiv.style.top = rect.y0 + "px";
-    rectDiv.style.width = rect.x1 - rect.x0 + "px";
-    rectDiv.style.height = rect.y1 - rect.y0 + "px";
+    selectionRectangle.style.display = "block";
+    selectionRectangle.style.position = "absolute";
+    selectionRectangle.style.left = rectangle.x0 + "px";
+    selectionRectangle.style.top = rectangle.y0 + "px";
+    selectionRectangle.style.width = rectangle.x1 - rectangle.x0 + "px";
+    selectionRectangle.style.height = rectangle.y1 - rectangle.y0 + "px";
   }
-});
+}
 
 //functia de crop interactiv
-cropButton.addEventListener("click", () => {
+function crop() {
   const image = new Image();
-  image.src = canvas_image.toDataURL();
+  image.src = canvasImage.toDataURL();
+
   ctx.drawImage(
-    canvas_image,
-    //TO DO: see how you can solve this shit
-    x,
-    y,
-    rectDiv.offsetWidth,
-    rectDiv.offsetHeight,
+    canvasImage,
+    clickX,
+    clickY,
+    selectionRectangle.offsetWidth,
+    selectionRectangle.offsetHeight,
     0,
     0,
-    canvas_image.width,
-    canvas_image.height
+    canvasImage.width,
+    canvasImage.height
   );
-});
-
-//sterge selectia
-// const cut_button = document.getElementById("cutImageButton");
-// cut_button.addEventListener("click", () => {
-
-// })
-
-const menuButtons = Array.from(document.querySelectorAll(".menuButton"));
-
-menuButtons.forEach((buttons) => {
-  buttons.addEventListener("click", () => {
-    menuButtons.forEach((buttons) => {
-      buttons.classList.remove("active");
-    });
-    buttons.classList.add("active");
-  });
-});
-
-//salvare imagine
-
-//crop image
+}
 
 //stergere pixeli
-cut_button.addEventListener("click", () => {
-  const imageData = ctx.getImageData(
-    x,
-    y,
-    rectDiv.offsetWidth,
-    rectDiv.offsetHeight
+function cut() {
+  const imageSectionData = ctx.getImageData(
+    clickX,
+    clickY,
+    selectionRectangle.offsetWidth,
+    selectionRectangle.offsetHeight
   );
-  const data = imageData.data;
-  for (var i = 0; i < data.length; i++) {
-    data[i] = 255; // red
+  const imageData = imageSectionData.data;
+  for (let i = 0; i < imageData.length; i++) {
+    imageData[i] = 255; // alb
   }
   ctx.putImageData(
-    imageData,
-    x,
-    y,
+    imageSectionData,
+    clickX,
+    clickY,
     0,
     0,
-    rectDiv.offsetWidth,
-    rectDiv.offsetHeight
+    selectionRectangle.offsetWidth,
+    selectionRectangle.offsetHeight
   );
-});
+}
 
-//effects
-
-const effect_panel = document.getElementById("effect_panel");
-var i = 0;
-effect_button.addEventListener("click", () => {
+// functie ce se ocupa de aplicarea efectelor asupra imaginii
+// variabila i este incrementata la fiecare apasare a butonului
+// variabila i este folosita pentru a afisa/ascunde meniul de aplicare a efectului ales
+let i = 0;
+function effect() {
+  // daca i este par, vom afisa meniul pentru efecte
   if (i % 2 === 0) {
-    effect_panel.style.display = "flex";
+    effectPanel.style.display = "flex";
+    // luam imaginea initiala din canvas si o salvam intr-o variabila de tip imagine
+    // pentru a o putea folosi la aplicarea efectului "original"
     const image = new Image();
-    image.src = canvas_image.toDataURL();
+    image.src = canvasImage.toDataURL();
 
-    const sepia_button = document.getElementById("sepia_button");
-    const grayscale_button = document.getElementById("grayscale_button");
-    const inverted_button = document.getElementById("inverted_button");
-    const original_button = document.getElementById("original_button");
+    // salvam toate butoanele meniului pentru efecte intr-un array
+    const effectsMenuButtons = Array.from(
+      document.querySelectorAll(".effectButton")
+    );
 
-    var offsets = rectDiv.getBoundingClientRect();
-
-    grayscale_button.addEventListener("click", () => {
-      const imageData = ctx.getImageData(
-        x,
-        y,
-        rectDiv.offsetWidth,
-        rectDiv.offsetHeight
-      );
-      // alert(x + "," + y);
-      const data = imageData.data;
-      for (var i = 0; i < data.length; i += 4) {
-        var avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-        data[i] = avg; // red
-        data[i + 1] = avg; // green
-        data[i + 2] = avg; // blue
-      }
-      ctx.putImageData(
-        imageData,
-        x,
-        y,
-        0,
-        0,
-        rectDiv.offsetWidth,
-        rectDiv.offsetHeight
-      );
+    // parcurgem array-ul de butoane
+    effectsMenuButtons.forEach((buttons) => {
+      // cand un buton este apasat, luam id-ul butonului apasat si il comparam cu id-urile celorlalte butoane pana gasim butonul care a fost apasat,
+      // dupa care aplicam functia necesara
+      buttons.addEventListener("click", () => {
+        switch (buttons.id) {
+          case "grayscaleButton":
+            grayscale();
+            break;
+          case "invertedButton":
+            inverted();
+            break;
+          case "originalButton":
+            original();
+            break;
+        }
+      });
     });
 
-    original_button.addEventListener("click", () => {
+    // functie ce aplica efectul de grayscale pe portiunea de imagine selectata
+    function grayscale() {
+      // luam portiunea selectata din imagine
+      const imageSectionData = ctx.getImageData(
+        // clickX, clickY reprezinta coordonatele punctului unde a fost facut click initial
+        clickX,
+        clickY,
+        // variabilele urmatoare reprezinta lungimea si latimea selectiei
+        selectionRectangle.offsetWidth,
+        selectionRectangle.offsetHeight
+      );
+      // preluam datele selectiei din imagine
+      const imageData = imageSectionData.data;
+      // parcurgem datele imaginii ca pe un vector (iterand pe pixeli)
+      // parcurgerea se face din 4 in 4 pixeli, cate un pixel pentru fiecare culoare + transparenta (RGBA)
+      for (let i = 0; i < imageData.length; i += 4) {
+        // calculam valoarea medie a valorilor culorilor din pixelii curenti pentru a obtine tonuri de gri
+        let avgerage = (imageData[i] + imageData[i + 1] + imageData[i + 2]) / 3;
+        // setam cei 3 pixeli cu valoarea medie
+        imageData[i] = avgerage; // rosu
+        imageData[i + 1] = avgerage; // green
+        imageData[i + 2] = avgerage; // blue
+      }
+      // inlocuim portiunea selectata din imagine cu varianta acestia in grayscale
+      ctx.putImageData(
+        imageSectionData,
+        clickX,
+        clickY,
+        0,
+        0,
+        selectionRectangle.offsetWidth,
+        selectionRectangle.offsetHeight
+      );
+    }
+
+    // desenam imaginea initiala peste imaginea ce a fost modificata
+    function original() {
       ctx.drawImage(image, 0, 0);
-    });
+    }
 
-    inverted_button.addEventListener("click", () => {
-      const imageData = ctx.getImageData(
-        x,
-        y,
-        rectDiv.offsetWidth,
-        rectDiv.offsetHeight
+    // functie ce aplica efectul inverted
+    function inverted() {
+      const imageSectionData = ctx.getImageData(
+        clickX,
+        clickY,
+        selectionRectangle.offsetWidth,
+        selectionRectangle.offsetHeight
       );
-      const data = imageData.data;
-      for (var i = 0; i < data.length; i += 4) {
-        data[i] = 255 - data[i]; // red
-        data[i + 1] = 255 - data[i + 1]; // green
-        data[i + 2] = 255 - data[i + 2]; // blue
+      const imageData = imageSectionData.data;
+      for (let i = 0; i < imageData.length; i += 4) {
+        imageData[i] = 255 - imageData[i]; // rosu
+        imageData[i + 1] = 255 - imageData[i + 1]; // verde
+        imageData[i + 2] = 255 - imageData[i + 2]; // albastru
       }
       ctx.putImageData(
-        imageData,
-        x,
-        y,
+        imageSectionData,
+        clickX,
+        clickY,
         0,
         0,
-        rectDiv.offsetWidth,
-        rectDiv.offsetHeight
+        selectionRectangle.offsetWidth,
+        selectionRectangle.offsetHeight
       );
-    });
+    }
 
     i++;
   } else {
-    effect_panel.style.display = "none";
+    effectPanel.style.display = "none";
     i++;
   }
-});
+}
 
-//text
-const textButton = document.getElementById("textButton");
-const text_input = document.getElementById("text_input");
-const text_input_div = document.getElementById("text_input_div");
-const font_size = document.getElementById("x_coordinate_text");
-const y_coordinate_text = document.getElementById("y_coordinate_text");
-const submit_text_button = document.getElementById("submit_text_button");
-const color_input_text = document.getElementById("color_input_text");
+// functie ce afiseaza/ascunde meniul pentru adaugarea textului
+// variabila j este incrementata la fiecare apasare a butonului
+// variabila j este folosita pentru a afisa/ascunde meniul de adaugare a textului
 let j = 0;
-textButton.addEventListener("click", () => {
+function showHideTextMenu() {
+  // daca j este par, afisam meniul, altfel il ascundem
   if (j % 2 === 0) {
-    text_input_div.style.display = "block";
+    textInputDiv.style.display = "block";
     j++;
   } else {
-    text_input_div.style.display = "none";
+    textInputDiv.style.display = "none";
     j++;
   }
+}
 
-  // alert(text);
-});
-
-submit_text_button.addEventListener("click", () => {
-  const text = text_input.value;
-  ctx.fillStyle = color_input_text.value;
-  ctx.font = font_size.value + "px Arial";
-  ctx.fillText(text, x, y);
+// functie de adaugare text
+addTextButton.addEventListener("click", () => {
+  // luam valoarea text data ca parametru de catre utilizator
+  const text = textInput.value;
+  // setam culoarea textului folosind valoarea returnata din color picker
+  ctx.fillStyle = colorTextInput.value;
+  // setam dimensiunea si fontul de baza al textului
+  ctx.font = fontSize.value + "px Arial";
+  // la final, adaugam textul la contextul canvas-ului
+  ctx.fillText(text, clickX, clickY);
 });

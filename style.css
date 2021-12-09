@@ -3,17 +3,20 @@
 body {
   background-color: #13252f;
   min-height: 95vh;
-  /* width: 100%; */
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: "poppins";
 }
 
+.secondMenu {
+  width: 5%;
+}
+
 .container {
   display: flex;
-  height: 800px;
-  width: 1200px;
+  height: 100%;
+  width: 80%;
   border-radius: 15px;
   background: #252f35;
   overflow: hidden;
@@ -40,15 +43,10 @@ body {
   padding: 10px;
   margin: 8px 0px 10px 0px;
   flex-direction: column;
-  /* cursor: pointer; */
-}
-
-.active {
-  background-color: red;
 }
 
 .imageEditor {
-  width: 1000px;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -65,30 +63,20 @@ body {
   height: 100%;
 }
 
-/* .div_canvas {
-  width: 700px;
-  height: 900px;
-  position: absolute;
-  display: none;
-} */
-
-.image_canvas {
-  /* width: 700px; */
-  /* height: 700px; */
+.imageCanvas {
   display: none;
 }
 
-.effect_panel {
+.effectPanel {
   align-items: center;
   justify-content: center;
   flex-direction: column;
   box-shadow: 0.1px 4px 8px 5px rgba(0, 0, 0, 0.1);
   display: none;
   margin-top: 40%;
-  /* display: flex; */
 }
 
-.effect_panel button {
+.effectPanel button {
   width: 100%;
   height: 80px;
   display: flex;
@@ -103,7 +91,7 @@ body {
   flex-direction: column;
 }
 
-.text_input_div {
+.textInputDiv {
   display: none;
   align-items: center;
   justify-content: center;
@@ -112,6 +100,10 @@ body {
   margin-top: 30%;
 }
 
-.text_input_div input {
+.textInputDiv input {
   display: block;
+}
+
+.menuButton:focus {
+  background-color: #222a2f;
 }
