@@ -163,8 +163,10 @@ function selection() {
     rectangle.x0 = e.clientX;
     rectangle.y0 = e.clientY;
     // coordonatele punctului unde a fost facut click sunt retinute in variabilele globale clickX si clickY pentru a fi folosite mai tarziu (in restul functiilor)
-    clickX = e.layerX;
-    clickY = e.layerY;
+    clickX = e.layerX - 830;
+    console.log(clickX);
+    clickY = e.layerY - 245;
+    console.log(clickY);
   }
 
   // daca utilizatorul inca tine butonul mouse-ului apasat, coordonatele punctului din coltul jos-dreapta al dreptunghiului de selectie
